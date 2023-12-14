@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Option Pricing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&family=Playfair+Display&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box
+        }
+        
+        body {
+            background-image: url({{url_for('static', filename='app.jpg')}});
+            background-size: cover;
+            background-color: rgba(242, 255, 255, 0.95);
+            margin: 0;
+            font-family: "Nunito";
+        }
+        
+        main {
+            font-family: "Playfair Display";
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            height: 100vh;
+            width: 100%;
+        }
+        
+        main > div {
+            padding: 20px 40px;
+            width: 50%;
+            background: #fff;
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        main > div:first-of-type {
+            background: #506ed1c8;
+            padding: 20px;
+        }
+
+        main > div:last-of-type > div{
+            padding: 0 20px;
+            width: 100%;
+        }
+        
+        img {
+            width: 400px
+        }
+        
+        h1 {
+            margin: 0;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        label {
+            font-family: 'Nunito';
+            font-weight: 600;
+            color: #506ed1;
+        }
+        
+        @media(max-width:768px) {
+            main > div {
+                width: 100%;
+            }
+
+            main > div:first-of-type {
+                padding: 50px;
+            }
+        }
+
+        input:not([type='submit']):not([type='checkbox']):not([type='radio']) {
+            width: 100%;
+            border: none;
+            padding: 10px;
+            font: 500 16px "Nunito";
+            resize: none;
+            transition: .3s ease-in-out;
+            border-radius: 4px;
+            margin: 10px 0;
+            -webkit-transition: .3s ease-in-out;
+            -moz-transition: .3s ease-in-out;
+            -ms-transition: .3s ease-in-out;
+            -o-transition: .3s ease-in-out;
+            border: 1px solid #e5e5e5;
+            color: #10153C;
+        }
+
+        input[type='checkbox'] {
+            margin: 10px 5px 10px 0
+        }
+
+        textarea {
+            resize: none;
+            height: 100px;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #506ed1 !important;
+        }
+
+        button {
+            display: block;
+            background: #506ed1;
+            padding: 10px 30px;
+            border: none;
+            font: 500 16px "Nunito";
+            color: #fff;
+            border-radius: 4px;
+            margin: 40px 0 0;
+            width: 100%;
+            cursor: pointer;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            -ms-border-radius: 4px;
+            -o-border-radius: 4px;
+        }
+
+        button:hover {
+            filter: brightness(.95);
+        }
+
+        :focus {
+            outline: none;
+        }
+
+        ::-webkit-input-placeholder {
+            color: #a7a7a7;
+            font:400 14px "Nunito";
+        }
+
+        :-ms-input-placeholder {
+            color: #a7a7a7;
+            font:400 14px "Nunito";
+        }
+
+        ::placeholder {
+            color: #a7a7a7;
+            font:400 14px "Nunito";
+        }
+
+        .out {
+            padding: 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.112);
+            border-radius: 6px;
+            color: #ffffff;
+            font: 600 18px 'Nunito';
+            margin-bottom: 20px;
+            width: 70%;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div>
+            <div class="out">
+                <div style="width: 100%;">
+                    <canvas id="myChart"></canvas>
+                </div>
+                <p id="output"></p>
+            </div>
+            <img src="{{url_for('static', filename='logo.png')}}" align="middle" />
+        </div>
+        <div>
+            <div>
+                <h1>Call Option Pricing</h1>
+                <label>Symbol Name</label>
+                <input type="text" id="symbol" placeholder="Enter symbol name">
+                <label>Strike Price</label>
+                <input type="number" id="strikePrice" placeholder="Enter strike price">
+                <label>Date of expiration</label>
+                <input type="date" id="dateToExpire" placeholder="Enter expiration date" >
+                <label>Interest Rate</label>
+                <input type="number" id="interestRate" placeholder="Enter interest rate">
+                <label>Volatility</label>
+                <input type="number" id="volatility" placeholder="Enter volatility">
+    
+                <button id="calculateButton">Calculate</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        var results = {
+            labels: {{ labels | tojson }},
+            datasets: [{
+                label: 'Call Option Prices',
+                backgroundColor: 'rgb(180 39 74)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: {{ results | tojson}},
+            }]
+        };
+
+        Chart.defaults.color = '#fff';
+        const config = {
+            type: 'line',
+            data: results,
+            options: { 
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                        color: function(context) {
+                            return '#ffffff';
+                        },
+                        },
+                    },
+                    y: {
+                        grid: {
+                        color: function(context) {
+                            return '#ffffff';
+                        },
+                        },
+                    }
+                }
+            }
+        };
+
+        const myChart = new Chart(
+            document.getElementById('myChart'),
+            config
+        );
+
+        const dateToExpireInp = document.getElementById('dateToExpire');
+        dateToExpireInp.min = new Date().toISOString().split("T")[0];
+        
+        document.getElementById('calculateButton').addEventListener('click', function() {
+
+            const symbol = document.getElementById('symbol').value;
+            const strikePrice = document.getElementById('strikePrice').value;
+            const dateToExpire = dateToExpireInp.value;
+            const interestRate = document.getElementById('interestRate').value;
+            const volatility = document.getElementById('volatility').value;
+    
+            // Make sure all fields are filled
+            if (!symbol || !strikePrice || !dateToExpire || !interestRate || !volatility) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            fetch('/api/call_option_price', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Symbol: symbol,
+                    K: strikePrice,
+                    T: dateToExpire,
+                    r: interestRate,
+                    sigma: volatility,
+                    option_type: 'call',  // Default to call option
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // Check for specific HTTP status codes and handle them
+                    if (response.status === 400) {
+                        // Bad Request (client error)
+                        throw new Error('Invalid input values. Please check your inputs.');
+                    } else if (response.status === 500) {
+                        // Internal Server Error (server error)
+                        throw new Error('Server error. Please try again later.');
+                    } else {
+                        // Other error
+                        throw new Error('Unexpected error. Please try again.');
+                    }
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                document.getElementById('output').innerText = `Expected Price in ${dateToExpireInp.value} is: ${data.call_option_price}`;
+                
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('output').innerText = `Error: ${error.message || 'Unknown error'}`;
+            });
+        });
+    </script>
+    
+    
+</body>
+</html>
