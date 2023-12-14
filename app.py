@@ -36,16 +36,9 @@ def black_scholes_analytic(S, K, T, r, sigma, option_type='call'):
     return option_price
 @app.route("/")
 def home():
-    labels = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-    ]
+    labels = []
  
-    results = [0, 10, 15, 8, 22, 18, 25]
+    results = []
  
     # Return the components to the HTML template 
     return render_template(
@@ -101,8 +94,8 @@ def get_call_option_price():
         print(call_option_price)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
-    labels_num = np.round(np.linspace(0,round(TT,0),5),3)
-    labels = [(inital_date.today() + dt.timedelta(days = round(year*365))).strftime("%d-%m-%Y")for year in labels_num]
+    labels_num = np.linspace(0,TT,5)
+    labels = [(inital_date.today() + dt.timedelta(days = year*365)).strftime("%d-%m-%Y")for year in labels_num]
     results = black_scholes_analytic(S, K, labels_num, r, sigma, option_type='call')
     return jsonify({"call_option_price": round(call_option_price,2),
                     "results":list(results),

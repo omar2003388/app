@@ -153,13 +153,21 @@
 
         .out {
             padding: 20px;
-            text-align: center;
             background: rgba(0, 0, 0, 0.112);
             border-radius: 6px;
-            color: #ffffff;
-            font: 600 18px 'Nunito';
+            color: #10153C;
+            font: 500 16px 'Nunito';
             margin-bottom: 20px;
             width: 70%;
+        }
+        .out p {
+            margin: 0;
+            margin-top: 20px;
+            border-top: 1px dashed #9dabd7;
+            padding-top: 20px;
+        }
+        .out span {
+            color: #fff;
         }
     </style>
 </head>
@@ -267,7 +275,7 @@
                 body: JSON.stringify({
                     Symbol: symbol,
                     K: strikePrice,
-                    T: dateToExpireInp.value,
+                    T: dateToExpire,
                     r: interestRate,
                     sigma: volatility,
                     option_type: 'call',  // Default to call option
@@ -294,10 +302,32 @@
                     throw new Error(data.error);
                 }
                 console.log('Data received from API:', data);
-                document.getElementById('output').innerText = `Expected Price in ${dateToExpireInp.value} is: ${data.call_option_price}\n
-                Stock Price of ${symbol} at ${dateToExpireInp.value} is: ${data.Stock_Price}`;
-                updateChart(data.labels, data.results);  // Assuming a function to update the chart
-                
+                document.getElementById('output').innerHTML = `In <span>${dateToExpireInp.value}</span> for <span>${symbol}</span><br> Expected Call Option Price is: <span>${data.call_option_price}</span><br>
+                Expected Stock Price is: <span>${data.Stock_Price}</span>`;
+
+                function removeData(chart) {
+                    chart.data.labels.pop();
+                    chart.data.datasets.forEach((dataset) => {
+                        dataset.data.pop();
+                    });
+                    chart.update();
+                }
+
+                function addData(chart, label, newData) {
+                    chart.data.labels.push(label);
+                    chart.data.datasets.forEach((dataset) => {
+                        dataset.data.push(newData);
+                    });
+                    chart.update();
+                }
+
+                for (var i = 0; i <5; i++) {
+                    removeData(myChart);
+                }
+
+                for (var i = 0; i <5; i++) {
+                    addData(myChart, data.labels[i], data.results[i]);
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
