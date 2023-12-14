@@ -1,2 +1,8 @@
-Flask
-Gunicorn
+flask
+gunicorn
+numpy
+scipy
+yfinance
+pandas
+matplotlib
+datetime
