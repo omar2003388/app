@@ -78,6 +78,10 @@
             main > div:first-of-type {
                 padding: 50px;
             }
+
+            .out {
+                width: 100%;
+            }
         }
 
         input:not([type='submit']):not([type='checkbox']):not([type='radio']) {
@@ -174,13 +178,13 @@
 <body>
     <main>
         <div>
+            <img src="{{url_for('static', filename='logo.png')}}" align="middle" />
             <div class="out">
                 <div style="width: 100%;">
                     <canvas id="myChart"></canvas>
                 </div>
                 <p id="output"></p>
             </div>
-            <img src="{{url_for('static', filename='logo.png')}}" align="middle" />
         </div>
         <div>
             <div>
