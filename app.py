@@ -101,11 +101,13 @@ def get_call_option_price():
         print(call_option_price)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
-    labels = np.linspace(0,round(TT,0),8)
-    results = black_scholes_analytic(S, K, labels, r, sigma, option_type='call')
-    return jsonify({"call_option_price": call_option_price,
-                    "results":results,
-                    "labels":labels})
+    labels_num = np.round(np.linspace(0,round(TT,0),5),3)
+    labels = [(inital_date.today() + dt.timedelta(days = round(year*365))).strftime("%d-%m-%Y")for year in labels_num]
+    results = black_scholes_analytic(S, K, labels_num, r, sigma, option_type='call')
+    return jsonify({"call_option_price": round(call_option_price,2),
+                    "results":list(results),
+                    "labels":list(labels),
+                    "Stock_Price":round(S)})
 
 if __name__ == '__main__':
     app.run(debug=True)

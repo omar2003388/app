@@ -194,8 +194,10 @@
     </main>
 
     <script>
+        
+        
         var results = {
-            labels: {{ labels | tojson }},
+            labels: {{ labels | tojson}},
             datasets: [{
                 label: 'Call Option Prices',
                 backgroundColor: 'rgb(180 39 74)',
@@ -233,6 +235,12 @@
             document.getElementById('myChart'),
             config
         );
+        function updateChart(labels, results) {
+            console.log('Updating chart with:', labels, results);
+            myChart.data.labels = labels;
+            myChart.data.datasets[0].data = results;
+            myChart.update();
+        }
 
         const dateToExpireInp = document.getElementById('dateToExpire');
         dateToExpireInp.min = new Date().toISOString().split("T")[0];
@@ -259,7 +267,7 @@
                 body: JSON.stringify({
                     Symbol: symbol,
                     K: strikePrice,
-                    T: dateToExpire,
+                    T: dateToExpireInp.value,
                     r: interestRate,
                     sigma: volatility,
                     option_type: 'call',  // Default to call option
@@ -285,12 +293,16 @@
                 if (data.error) {
                     throw new Error(data.error);
                 }
-                document.getElementById('output').innerText = `Expected Price in ${dateToExpireInp.value} is: ${data.call_option_price}`;
+                console.log('Data received from API:', data);
+                document.getElementById('output').innerText = `Expected Price in ${dateToExpireInp.value} is: ${data.call_option_price}\n
+                Stock Price of ${symbol} at ${dateToExpireInp.value} is: ${data.Stock_Price}`;
+                updateChart(data.labels, data.results);  // Assuming a function to update the chart
                 
             })
             .catch(error => {
                 console.error('Error:', error);
                 document.getElementById('output').innerText = `Error: ${error.message || 'Unknown error'}`;
+                
             });
         });
     </script>
