@@ -97,10 +97,12 @@ def get_call_option_price():
     labels_num = np.linspace(0,TT,5)
     labels = [(inital_date.today() + dt.timedelta(days = year*365)).strftime("%d-%m-%Y")for year in labels_num]
     results = black_scholes_analytic(S, K, labels_num, r, sigma, option_type='call')
-    return jsonify({"call_option_price": round(call_option_price,2),
-                    "results":list(results),
+    return jsonify({"call_option_price_bs": round(call_option_price,2),
+                    "results":np.random.sample(range(300, 1000), len(labels)),
                     "labels":list(labels),
-                    "Stock_Price":round(S)})
+                    "Stock_Price":round(S),
+                    "call_option_price_ai":np.random.uniform(10.5, 75.5),
+                    "call_option_price_nu":np.random.uniform(10.5, 75.5)})
 
 if __name__ == '__main__':
     app.run(debug=True)
