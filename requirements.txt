@@ -6,4 +6,3 @@ yfinance
 pandas
 matplotlib
 datetime
-tensorflow
